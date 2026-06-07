@@ -1,7 +1,6 @@
 const idCatalogoActual = 7;
 const slugActual = "InversionesPreaft";
 const numeroWhatsApp = "986820428";
-const nombreCatalogo = "InversionesPreaft";
 
 const cart = [];
 let currentProduct = null;
