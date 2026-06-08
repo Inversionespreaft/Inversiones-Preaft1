@@ -43,7 +43,7 @@
             })();
         </script>
     <!-- Google Sign-In -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Google Sign-In removed; login/local accounts available on site only -->
     <style>
         :root { --color-principal: #a81b8d; --color-texto: #111111; }
     </style>
@@ -54,12 +54,12 @@
 
     <header class="site-header">
         <div class="container tambo-header">
-            <button class="brand-lockup" type="button" id="logoReinicioBtn" onclick="reiniciarApp()" aria-label="Reiniciar aplicación" title="Haz clic para reiniciar">
+            <button class="brand-lockup" type="button" id="logoReinicioBtn" onclick="actualizarApp()" aria-label="Actualizar aplicación" title="Actualizar catálogo">
                 <img src="/uploads/1760746209_Logo-Inversiones-Preaft-Oficial.png" alt="INVERSIONES PREAFT" class="site-logo">
             </button>
             <button class="location-pill" type="button" onclick="openOrderModal()">
                 <i class="fas fa-map-marker-alt"></i>
-                <span>¿Dónde quieres pedir?</span>
+                <span id="currentAddressLabel">¿Dónde quieres pedir?</span>
                 <i class="fas fa-chevron-down"></i>
             </button>
             <div class="header-actions" aria-label="Acciones rápidas">
@@ -71,6 +71,19 @@
         </div>
     </header>
 
+    <nav class="page-nav">
+        <div class="container page-nav-inner">
+            <button type="button" class="page-link active" data-section="homeSection" onclick="showSection('homeSection')">Inicio</button>
+            <button type="button" class="page-link" onclick="showSection('homeSection'); scrollToProductCatalog();">Productos</button>
+            <button type="button" class="page-link" data-section="loginSection" onclick="showSection('loginSection')">Iniciar sesión</button>
+            <button type="button" class="page-link" data-section="registerSection" onclick="showSection('registerSection')">Registro</button>
+            <button type="button" class="page-link" data-section="dashboardSection" onclick="showSection('dashboardSection')">Mi cuenta</button>
+            <button type="button" class="page-link" data-section="landingSection" onclick="showSection('landingSection')">Oferta</button>
+            <button type="button" class="page-link hidden-page-link" data-section="privateSection" style="display:none" onclick="showSection('privateSection')">Área privada</button>
+        </div>
+    </nav>
+
+    <div id="homeSection" class="page-section active">
     <div class="nav-container">
         <div class="container toolbar">
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
@@ -209,6 +222,138 @@
             </div>
         </div>
     </div>
+
+    <section class="customer-support-section">
+        <div class="container">
+            <h2>Atención al cliente y descuentos</h2>
+            <p>Encuentra soporte rápido, promociones exclusivas y la mejor experiencia de compra.</p>
+            <div class="support-cards">
+                                <article>
+                                        <button class="support-btn" onclick="document.getElementById('supportForm').scrollIntoView({behavior:'smooth'})">
+                                            <i class="fas fa-headset"></i>
+                                            <div>
+                                                <h3>Soporte inmediato</h3>
+                                                <p>Accede al formulario de soporte para resolver pedidos o dudas.</p>
+                                            </div>
+                                        </button>
+                                </article>
+                <article>
+                    <i class="fas fa-gift"></i>
+                    <h3>Descuentos</h3>
+                    <p>Activa tu cuenta en la página para acceder a promociones y puntos exclusivos.</p>
+                </article>
+                                <article>
+                                        <button class="satisfaction-btn" onclick="openSatisfactionPanel()">
+                                            <i class="fas fa-smile"></i>
+                                            <div>
+                                                <h3>Satisfacción</h3>
+                                                <p>Accede al espacio exclusivo de opiniones, puntos y experiencias de clientes.</p>
+                                            </div>
+                                        </button>
+                                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Image mapping admin removed per request -->
+
+        <section id="supportForm" class="support-form-section">
+            <div class="container">
+                <h2>Soporte inmediato — formulario</h2>
+                <p>Completa el formulario y nuestro equipo te contactará por WhatsApp o por teléfono.</p>
+                <form id="supportFormElement" onsubmit="submitSupportForm(event)">
+                    <div class="form-row"><label>Nombre</label><input type="text" id="supportName" required></div>
+                    <div class="form-row"><label>Teléfono</label><input type="tel" id="supportPhone"></div>
+                    <div class="form-row"><label>Correo (opcional)</label><input type="email" id="supportEmail"></div>
+                    <div class="form-row"><label>Número de pedido (si aplica)</label><input type="text" id="supportOrder"></div>
+                    <div class="form-row"><label>Mensaje</label><textarea id="supportMessage" required></textarea></div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-action">Enviar solicitud</button>
+                        <button type="button" class="btn-action" onclick="abrirWhatsAppSoporte()">Abrir chat WhatsApp</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section id="opinions" class="opinions-section">
+            <div class="container">
+                <h2>Opiniones, comentarios y puntos</h2>
+                <p>Aquí puedes dejar tu opinión. Para acumular puntos por compras debes iniciar sesión en la página (registro local).</p>
+
+                <div id="localAuth" class="local-auth">
+                    <div id="authForms">
+                        <div class="auth-col">
+                            <h3>Iniciar sesión</h3>
+                            <input type="email" id="loginEmail" placeholder="Correo" />
+                            <input type="password" id="loginPass" placeholder="Contraseña" />
+                            <button onclick="localLogin()" class="btn-action">Entrar</button>
+                        </div>
+                        <div class="auth-col">
+                            <h3>Registro</h3>
+                            <input type="text" id="regName" placeholder="Nombre" />
+                            <input type="email" id="regEmail" placeholder="Correo" />
+                            <input type="password" id="regPass" placeholder="Contraseña" />
+                            <button onclick="localRegister()" class="btn-action">Registrarme</button>
+                        </div>
+                    </div>
+                    <div id="authStatus" style="margin-top:1rem;display:none">
+                        <strong id="authUserLabel"></strong>
+                        <div>Puntos acumulados: <span id="userPoints">0</span></div>
+                        <button onclick="localLogout()" class="btn-action">Cerrar sesión</button>
+                    </div>
+                    <small>Próximamente podrás crear tu cuenta o iniciar sesión con Google.</small>
+                </div>
+
+                <div id="commentArea" style="margin-top:1.25rem;">
+                    <textarea id="commentText" placeholder="Comparte tu experiencia..."></textarea>
+                    <div style="margin-top:0.5rem">
+                        <button onclick="submitComment()" class="btn-action">Enviar comentario (ganar puntos)</button>
+                    </div>
+                </div>
+
+                <div id="commentsList" style="margin-top:1rem;"></div>
+            </div>
+        </section>
+
+        <section id="satisfactionPanel" class="info-panel">
+            <div class="container">
+                <div class="panel-header">
+                    <div>
+                        <h2>Satisfacción y experiencia</h2>
+                        <p>Un panel separado para opiniones, puntos y el servicio al cliente, sin mezclarlo con la venta directa de productos.</p>
+                    </div>
+                    <button class="panel-close" onclick="closeSatisfactionPanel()">Cerrar</button>
+                </div>
+                <div class="info-grid">
+                    <article>
+                        <h3>Conócenos</h3>
+                        <ul>
+                            <li>Zonas de despacho</li>
+                            <li>Trabaja con nosotros</li>
+                            <li>Legales</li>
+                            <li>Términos y condiciones</li>
+                        </ul>
+                    </article>
+                    <article>
+                        <h3>Redes sociales</h3>
+                        <ul>
+                            <li>Instagram</li>
+                            <li>Facebook</li>
+                            <li>TikTok</li>
+                        </ul>
+                    </article>
+                    <article>
+                        <h3>Mi cuenta</h3>
+                        <ul>
+                            <li>Pedir desde la página</li>
+                            <li>Iniciar sesión local</li>
+                            <li>Acumula puntos por cada compra</li>
+                        </ul>
+                    </article>
+                </div>
+                <div class="panel-note">Este espacio es independiente del catálogo de productos. Usa el botón Satisfacción para abrirlo y mantener la navegación de compras limpia y separada.</div>
+            </div>
+        </section>
 
     <div class="overlay-dark" onclick="toggleMobileMenu()"></div>
     <div id="mobileMenu" class="offcanvas-menu">
@@ -3731,11 +3876,115 @@
                     </div>
                                     </section>
     </main>
-    
+    </div>
+
+    <section id="loginSection" class="page-section page-panel">
+        <div class="container panel-page">
+            <h2>Iniciar sesión</h2>
+            <p>Accede a tu cuenta local de Preaft para ver tu dashboard y activar beneficios.</p>
+            <div class="auth-page">
+                <label>Correo</label>
+                <input type="email" id="pageLoginEmail" placeholder="Correo" />
+                <label>Contraseña</label>
+                <input type="password" id="pageLoginPass" placeholder="Contraseña" />
+                <button class="btn-action" type="button" onclick="localLogin('pageLoginEmail','pageLoginPass')">Entrar</button>
+                <p class="page-note">¿No tienes cuenta? <button type="button" class="link-button" onclick="showSection('registerSection')">Regístrate aquí</button>.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="registerSection" class="page-section page-panel">
+        <div class="container panel-page">
+            <h2>Registro de usuarios</h2>
+            <p>Crea tu cuenta local en Preaft. Lleva puntos y accede a tu área privada.</p>
+            <div class="auth-page">
+                <label>Nombre</label>
+                <input type="text" id="pageRegName" placeholder="Nombre" />
+                <label>Correo</label>
+                <input type="email" id="pageRegEmail" placeholder="Correo" />
+                <label>Contraseña</label>
+                <input type="password" id="pageRegPass" placeholder="Contraseña" />
+                <button class="btn-action" type="button" onclick="localRegister('pageRegName','pageRegEmail','pageRegPass')">Registrarme</button>
+                <p class="page-note">¿Ya tienes cuenta? <button type="button" class="link-button" onclick="showSection('loginSection')">Inicia sesión</button>.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="dashboardSection" class="page-section page-panel">
+        <div class="container panel-page">
+            <div class="dashboard-header">
+                <div>
+                    <h2>Panel de usuario</h2>
+                    <p>Bienvenido a tu área privada. Aquí encontrarás tu saldo de puntos, historial y accesos exclusivos.</p>
+                </div>
+                <button class="btn-action" type="button" onclick="localLogout()">Cerrar sesión</button>
+            </div>
+            <div class="dashboard-grid">
+                <article>
+                    <h3>Resumen</h3>
+                    <p>Usuario: <strong id="dashboardUserEmail">-</strong></p>
+                    <p>Puntos acumulados: <strong id="dashboardUserPoints">0</strong></p>
+                </article>
+                <article>
+                    <h3>Pedidos</h3>
+                    <p>Tu carrito actual se muestra en el botón de carrito. Completa pedidos y acumula descuentos.</p>
+                </article>
+                <article>
+                    <h3>Accesos especiales</h3>
+                    <button class="btn-action" type="button" onclick="enterPrivateArea()">Ir al área privada</button>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="privateSection" class="page-section page-panel hidden-panel">
+        <div class="container panel-page">
+            <h2>Área privada de clientes</h2>
+            <p>Esta zona oculta se activa cuando tu usuario está registrado y logueado correctamente.</p>
+            <div class="private-content">
+                <p>Esta página puede ampliarse con promociones exclusivas, contenido premium, campañas de fidelidad y funciones en desarrollo.</p>
+                <p>Si deseas, puedo conectar esta área privada a un backend real luego.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="landingSection" class="page-section page-panel">
+        <div class="container panel-page">
+            <h2>Página de lanzamiento</h2>
+            <p>Una landing page moderna para presentar ofertas, campañas y el valor de tu negocio.</p>
+            <div class="landing-blocks">
+                <article>
+                    <h3>Envío rápido</h3>
+                    <p>Despachos exprés en Lima Metropolitana con seguimiento inmediato.</p>
+                </article>
+                <article>
+                    <h3>Variedad Premium</h3>
+                    <p>Del catálogo a tu puerta: cervezas, tragos, snacks y productos esenciales.</p>
+                </article>
+                <article>
+                    <h3>Experiencia local</h3>
+                    <p>Preaft es una marca cercana con atención directa por WhatsApp.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="secondarySection" class="page-section page-panel">
+        <div class="container panel-page">
+            <h2>Página secundaria</h2>
+            <p>Contenido adicional para explicar por qué tu negocio es diferente y generar confianza.</p>
+            <ul class="secondary-list">
+                <li>Promociones rotativas para clientes frecuentes.</li>
+                <li>Soporte rápido y seguimiento personalizado.</li>
+                <li>Fidelidad con puntos y beneficios de descuento.</li>
+            </ul>
+        </div>
+    </section>
+
     <footer class="site-footer">
         <p>Síguenos en nuestras redes:</p>
         <div class="social-links-icons">
-            <a href="https://www.facebook.com/preaft.licores.vinos" target="_blank"><svg viewBox="0 0 512 512"><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z"/></svg></a>            <a href="https://www.tiktok.com/@tiobely.licoreria?_t=8o7BZMkycKM&amp;_r=1" target="_blank"><svg viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9 26.3 26.2 58 34.4 93.9 36.2 37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg></a>            <a href="https://wa.me/986820428" target="_blank"><svg viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 .2c54.9 0 105.8 21.2 145.2 59.7 39.4 38.5 61.7 91.1 61.7 147.2 0 109.8-89.5 198.8-199.8 198.8h-.1c-32.9 0-65.7-8.4-94.3-24.6l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-109.8 89.5-198.8 199.8-198.8zm111.9 142.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7 .9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></a>        </div>
+            <a href="https://www.facebook.com/preaft.licores.vinos" target="_blank"><svg viewBox="0 0 512 512"><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z"/></svg></a>            <a href="https://www.tiktok.com/@preaft?lang=es-419" target="_blank" title="TikTok PreAFT"><svg viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9 26.3 26.2 58 34.4 93.9 36.2 37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg></a>            <a href="https://wa.me/986820428" target="_blank"><svg viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 .2c54.9 0 105.8 21.2 145.2 59.7 39.4 38.5 61.7 91.1 61.7 147.2 0 109.8-89.5 198.8-199.8 198.8h-.1c-32.9 0-65.7-8.4-94.3-24.6l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-109.8 89.5-198.8 199.8-198.8zm111.9 142.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7 .9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></a>        </div>
     </footer>
 
     <div id="orderTypeModal" class="order-modal-overlay" onclick="closeOrderModalOnOverlay(event)">
@@ -3746,20 +3995,32 @@
                 <button class="active" type="button">Delivery</button>
                 <button type="button">Para llevar</button>
             </div>
-            <p class="order-login">¿Ya tienes una cuenta <strong>Preaft</strong>? <button type="button">Inicia sesión con ella</button></p>
+            <p class="order-login">¿Ya tienes una cuenta <strong>Preaft</strong>? <button type="button" onclick="showSection('loginSection')">Inicia sesión con ella</button></p>
             <button class="share-location-btn" type="button">
                 <i class="fas fa-location-crosshairs"></i>
-                Compartir ubicación
+                Compartir ubicación exacta
             </button>
             <div class="order-separator"><span>O busca tu dirección</span></div>
             <label class="order-field">
                 <span><i class="fas fa-map-marker-alt"></i> Distrito</span>
-                <select>
-                    <option>Selecciona un distrito</option>
+                <select id="deliveryDistrictSelect">
+                    <option value="">Selecciona un distrito</option>
+                    <option>Ate</option>
+                    <option>Chaclacayo</option>
                     <option>Miraflores</option>
                     <option>San Isidro</option>
                     <option>Santiago de Surco</option>
                     <option>La Molina</option>
+                    <option>San Borja</option>
+                    <option>San Miguel</option>
+                    <option>Jesús María</option>
+                    <option>Lince</option>
+                    <option>San Juan de Lurigancho</option>
+                    <option>San Martín de Porres</option>
+                    <option>Los Olivos</option>
+                    <option>Surquillo</option>
+                    <option>Pueblo Libre</option>
+                    <option>Magdalena del Mar</option>
                 </select>
             </label>
             <label class="order-field">
@@ -3769,8 +4030,13 @@
                     <input type="text" id="deliveryAddressInput" placeholder="Buscar dirección...">
                     <ul id="addressSuggestions" class="address-suggestions" role="listbox" aria-label="Sugerencias de dirección"></ul>
                 </div>
-                <div id="deliveryMap" class="delivery-map" aria-label="Mapa de entrega"></div>
             </label>
+            <div class="order-field">
+                <span><i class="fas fa-map-marker-alt"></i> Ver en el mapa</span>
+                <div id="deliveryMap" class="delivery-map" aria-label="Mapa de entrega"></div>
+            </div>
+            <button class="order-accept-btn" type="button" onclick="acceptDeliveryAddress()">Aceptar dirección</button>
+            <p id="deliveryAddressStatus" class="delivery-status-text">Selecciona o busca tu dirección y luego acepta para continuar.</p>
             <button class="order-footer-close" type="button" onclick="closeOrderModal()">Cerrar</button>
         </div>
     </div>
