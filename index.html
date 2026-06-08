@@ -243,14 +243,10 @@
                     <p>Activa tu cuenta en la página para acceder a promociones y puntos exclusivos.</p>
                 </article>
                                 <article>
-                                        <button class="satisfaction-btn" onclick="openSatisfactionPanel()">
-                                            <i class="fas fa-smile"></i>
-                                            <div>
-                                                <h3>Satisfacción</h3>
-                                                <p>Accede al espacio exclusivo de opiniones, puntos y experiencias de clientes.</p>
-                                            </div>
-                                        </button>
-                                </article>
+                    <i class="fas fa-gift"></i>
+                    <h3>Descuentos</h3>
+                    <p>Activa tu cuenta en la página para acceder a promociones y puntos exclusivos.</p>
+                </article>
             </div>
         </div>
     </section>
@@ -272,86 +268,6 @@
                         <button type="button" class="btn-action" onclick="abrirWhatsAppSoporte()">Abrir chat WhatsApp</button>
                     </div>
                 </form>
-            </div>
-        </section>
-
-        <section id="opinions" class="opinions-section">
-            <div class="container">
-                <h2>Opiniones, comentarios y puntos</h2>
-                <p>Aquí puedes dejar tu opinión. Para acumular puntos por compras debes iniciar sesión en la página (registro local).</p>
-
-                <div id="localAuth" class="local-auth">
-                    <div id="authForms">
-                        <div class="auth-col">
-                            <h3>Iniciar sesión</h3>
-                            <input type="email" id="loginEmail" placeholder="Correo" />
-                            <input type="password" id="loginPass" placeholder="Contraseña" />
-                            <button onclick="localLogin()" class="btn-action">Entrar</button>
-                        </div>
-                        <div class="auth-col">
-                            <h3>Registro</h3>
-                            <input type="text" id="regName" placeholder="Nombre" />
-                            <input type="email" id="regEmail" placeholder="Correo" />
-                            <input type="password" id="regPass" placeholder="Contraseña" />
-                            <button onclick="localRegister()" class="btn-action">Registrarme</button>
-                        </div>
-                    </div>
-                    <div id="authStatus" style="margin-top:1rem;display:none">
-                        <strong id="authUserLabel"></strong>
-                        <div>Puntos acumulados: <span id="userPoints">0</span></div>
-                        <button onclick="localLogout()" class="btn-action">Cerrar sesión</button>
-                    </div>
-                    <small>Próximamente podrás crear tu cuenta o iniciar sesión con Google.</small>
-                </div>
-
-                <div id="commentArea" style="margin-top:1.25rem;">
-                    <textarea id="commentText" placeholder="Comparte tu experiencia..."></textarea>
-                    <div style="margin-top:0.5rem">
-                        <button onclick="submitComment()" class="btn-action">Enviar comentario (ganar puntos)</button>
-                    </div>
-                </div>
-
-                <div id="commentsList" style="margin-top:1rem;"></div>
-            </div>
-        </section>
-
-        <section id="satisfactionPanel" class="info-panel">
-            <div class="container">
-                <div class="panel-header">
-                    <div>
-                        <h2>Satisfacción y experiencia</h2>
-                        <p>Un panel separado para opiniones, puntos y el servicio al cliente, sin mezclarlo con la venta directa de productos.</p>
-                    </div>
-                    <button class="panel-close" onclick="closeSatisfactionPanel()">Cerrar</button>
-                </div>
-                <div class="info-grid">
-                    <article>
-                        <h3>Conócenos</h3>
-                        <ul>
-                            <li>Zonas de despacho</li>
-                            <li>Trabaja con nosotros</li>
-                            <li>Legales</li>
-                            <li>Términos y condiciones</li>
-                        </ul>
-                    </article>
-                    <article>
-                        <h3>Redes sociales</h3>
-                        <ul>
-                            <li>Instagram</li>
-                            <li>Facebook</li>
-                            <li>TikTok</li>
-                        </ul>
-                    </article>
-                    <article>
-                        <h3>Mi cuenta</h3>
-                        <ul>
-                            <li>Pedir desde la página</li>
-                            <li>Iniciar sesión local</li>
-                            <li>Acumula puntos por cada compra</li>
-                        </ul>
-                    </article>
-                </div>
-                <div class="panel-note">Este espacio es independiente del catálogo de productos. Usa el botón Satisfacción para abrirlo y mantener la navegación de compras limpia y separada.</div>
             </div>
         </section>
 
