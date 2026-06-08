@@ -25,6 +25,101 @@ const cartFloatIcon = document.querySelector('.cart-float-icon');
 const overlayDark = document.querySelector('.overlay-dark');
 const orderTypeModal = document.getElementById('orderTypeModal');
 
+// Delivery - variables
+let deliveryMap = null;
+let deliveryMarker = null;
+let selectedDeliveryLocation = null; // { lat, lon, display_name }
+
+function normalizeUploadPaths() {
+  document.querySelectorAll('[src^="/uploads/"]').forEach((el) => {
+    const v = el.getAttribute('src');
+    if (v && v.startsWith('/')) el.src = v.replace(/^\//, '');
+  });
+  document.querySelectorAll('[data-imagen^="/uploads/"]').forEach((el) => {
+    const v = el.getAttribute('data-imagen');
+    if (v && v.startsWith('/')) el.setAttribute('data-imagen', v.replace(/^\//, ''));
+  });
+}
+
+// Nominatim search (no API key) - returns up to 6 results
+async function nominatimSearch(q) {
+  if (!q) return [];
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=6&q=${encodeURIComponent(q)}`;
+  try {
+    const res = await fetch(url, { headers: { 'Accept-Language': 'es' } });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (e) {
+    return [];
+  }
+}
+
+/*
+Note: Nominatim (OpenStreetMap) is free for light usage but has strict usage policies
+(https://operations.osmfoundation.org/policies/nominatim/). For production or heavy traffic,
+use a geocoding service with an API key (Mapbox, Google Places, Here, etc.) or host your
+own Nominatim instance. Browsers cannot set a custom User-Agent header, so heavy client
+side calls may be rate-limited; consider proxying requests through your server.
+*/
+
+async function nominatimReverse(lat, lon) {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    return null;
+  }
+}
+
+function initDeliveryMap() {
+  const mapEl = document.getElementById('deliveryMap');
+  if (!mapEl || typeof L === 'undefined') return;
+  if (deliveryMap) return;
+  deliveryMap = L.map(mapEl).setView([-12.0464, -77.0428], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(deliveryMap);
+
+  deliveryMap.on('click', async (e) => {
+    const { lat, lng } = e.latlng;
+    const info = await nominatimReverse(lat, lng);
+    const display = info?.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    setDeliveryLocation({ lat, lon: lng, display_name: display });
+  });
+}
+
+function setDeliveryLocation(loc) {
+  selectedDeliveryLocation = loc;
+  const { lat, lon, display_name } = loc;
+  const mapEl = document.getElementById('deliveryMap');
+  if (!mapEl) return;
+  if (!deliveryMap) initDeliveryMap();
+  if (deliveryMarker) deliveryMap.removeLayer(deliveryMarker);
+  deliveryMarker = L.marker([lat, lon]).addTo(deliveryMap);
+  deliveryMap.setView([lat, lon], 16);
+  const input = document.getElementById('deliveryAddressInput');
+  if (input) input.value = display_name;
+}
+
+function renderAddressSuggestions(items) {
+  const ul = document.getElementById('addressSuggestions');
+  if (!ul) return;
+  ul.innerHTML = '';
+  items.forEach((it) => {
+    const li = document.createElement('li');
+    li.className = 'address-suggestion';
+    li.setAttribute('role', 'option');
+    li.textContent = it.display_name;
+    li.addEventListener('click', () => {
+      setDeliveryLocation({ lat: parseFloat(it.lat), lon: parseFloat(it.lon), display_name: it.display_name });
+      ul.innerHTML = '';
+    });
+    ul.appendChild(li);
+  });
+}
+
 function parseJSON(value, fallback = []) {
   if (!value) return fallback;
   try {
@@ -207,6 +302,37 @@ document.addEventListener('DOMContentLoaded', () => {
   initSearch();
   initOverlayListeners();
   updateCartUI();
+  normalizeUploadPaths();
+  initDeliveryMap();
+
+  // Address input suggestions
+  const addrInput = document.getElementById('deliveryAddressInput');
+  if (addrInput) {
+    let t;
+    addrInput.addEventListener('input', () => {
+      clearTimeout(t);
+      t = setTimeout(async () => {
+        const q = addrInput.value.trim();
+        if (!q) return renderAddressSuggestions([]);
+        const items = await nominatimSearch(q);
+        renderAddressSuggestions(items);
+      }, 300);
+    });
+  }
+
+  // Share current geolocation
+  const shareBtn = document.querySelector('.share-location-btn');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', () => {
+      if (!navigator.geolocation) return alert('Geolocalización no soportada');
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const info = await nominatimReverse(lat, lon);
+        setDeliveryLocation({ lat, lon, display_name: info?.display_name || `${lat},${lon}` });
+      }, (err) => alert('No se pudo obtener la ubicación: ' + err.message));
+    });
+  }
   if (!sessionStorage.getItem('preaftOrderModalSeen')) {
     setTimeout(() => openOrderModal(), 700);
     sessionStorage.setItem('preaftOrderModalSeen', '1');
@@ -480,7 +606,15 @@ function enviarPedidoWhatsApp() {
     total += item.precioTotal;
   });
   lines.push(`*Total a pagar: S/ ${total.toFixed(2)}*`);
-  window.open(`https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
+  if (selectedDeliveryLocation) {
+    lines.push('');
+    lines.push('*Dirección de entrega:*');
+    lines.push(`${selectedDeliveryLocation.display_name}`);
+    lines.push(`Ubicación: https://www.openstreetmap.org/?mlat=${selectedDeliveryLocation.lat}&mlon=${selectedDeliveryLocation.lon}#map=18/${selectedDeliveryLocation.lat}/${selectedDeliveryLocation.lon}`);
+  }
+  // si `numeroWhatsApp` está definido, usa chat directo; si no, abre selector de WhatsApp con texto
+  const base = numeroWhatsApp ? `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=` : `https://wa.me/?text=`;
+  window.open(`${base}${encodeURIComponent(lines.join('\n'))}`, '_blank');
 }
 
 function toggleMobileMenu() {

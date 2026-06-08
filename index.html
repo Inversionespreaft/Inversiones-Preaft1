@@ -8,6 +8,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="estilos.css">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+        <script>
+            // Early normalization: remove leading slash from /uploads/... so images load correctly on GitHub Pages
+            (function(){
+                try {
+                    // Replace src attributes that start with /uploads/
+                    const imgAttr = 'src';
+                    const dataAttr = 'data-imagen';
+                    const normalize = (el, attr) => {
+                        const v = el.getAttribute(attr);
+                        if (v && v.startsWith('/uploads/')) el.setAttribute(attr, v.replace(/^\//, ''));
+                    };
+                    // Process existing elements found so far in parsing
+                    document.querySelectorAll('img').forEach((img)=> normalize(img, imgAttr));
+                    document.querySelectorAll('[data-imagen]').forEach((el)=> normalize(el, dataAttr));
+                    // Also observe for later added nodes while parsing
+                    const obs = new MutationObserver((mut)=>{
+                        mut.forEach(m=>{
+                            m.addedNodes && m.addedNodes.forEach(node=>{
+                                if (node.nodeType!==1) return;
+                                if (node.tagName==='IMG') normalize(node, imgAttr);
+                                if (node.hasAttribute && node.hasAttribute('data-imagen')) normalize(node, dataAttr);
+                                node.querySelectorAll && node.querySelectorAll('img').forEach(i=>normalize(i, imgAttr));
+                                node.querySelectorAll && node.querySelectorAll('[data-imagen]').forEach(i=>normalize(i, dataAttr));
+                            });
+                        });
+                    });
+                    obs.observe(document.documentElement || document, { childList:true, subtree:true });
+                    // stop observing after initial load to keep overhead low
+                    window.addEventListener('load', ()=> obs.disconnect());
+                } catch(e) { /* ignore */ }
+            })();
+        </script>
     <style>
         :root { --color-principal: #a81b8d; --color-texto: #111111; }
     </style>
@@ -3728,7 +3762,12 @@
             </label>
             <label class="order-field">
                 <span><i class="fas fa-map-marker-alt"></i> Ingresa una nueva dirección</span>
-                <div class="address-input"><i class="fas fa-search"></i><input type="text" placeholder="Buscar dirección..."></div>
+                <div class="address-input">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="deliveryAddressInput" placeholder="Buscar dirección...">
+                    <ul id="addressSuggestions" class="address-suggestions" role="listbox" aria-label="Sugerencias de dirección"></ul>
+                </div>
+                <div id="deliveryMap" class="delivery-map" aria-label="Mapa de entrega"></div>
             </label>
             <button class="order-footer-close" type="button" onclick="closeOrderModal()">Cerrar</button>
         </div>
