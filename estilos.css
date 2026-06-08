@@ -1237,6 +1237,37 @@ body {
   background: #faf4f9;
 }
 
+.customer-support-btn {
+  color: #10a37f !important;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.customer-support-btn:hover {
+  background: #d4f4e8 !important;
+  color: #008060 !important;
+}
+
+/* Estilos para el botón del logo */
+.brand-lockup {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.brand-lockup:hover {
+  opacity: 0.8;
+}
+
+/* Google Sign-In */
+#google-signin-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .nav-container {
   position: sticky;
   top: 102px;

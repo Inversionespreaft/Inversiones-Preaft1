@@ -42,6 +42,8 @@
                 } catch(e) { /* ignore */ }
             })();
         </script>
+    <!-- Google Sign-In -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root { --color-principal: #a81b8d; --color-texto: #111111; }
     </style>
@@ -52,10 +54,9 @@
 
     <header class="site-header">
         <div class="container tambo-header">
-            <a class="brand-lockup" href="#">
+            <button class="brand-lockup" type="button" id="logoReinicioBtn" onclick="reiniciarApp()" aria-label="Reiniciar aplicación" title="Haz clic para reiniciar">
                 <img src="/uploads/1760746209_Logo-Inversiones-Preaft-Oficial.png" alt="INVERSIONES PREAFT" class="site-logo">
-                
-            </a>
+            </button>
             <button class="location-pill" type="button" onclick="openOrderModal()">
                 <i class="fas fa-map-marker-alt"></i>
                 <span>¿Dónde quieres pedir?</span>
@@ -63,7 +64,8 @@
             </button>
             <div class="header-actions" aria-label="Acciones rápidas">
                 <button type="button" onclick="focusSearch()" aria-label="Buscar productos"><i class="fas fa-search"></i></button>
-                <button type="button" onclick="openOrderModal()" aria-label="Ingresar"><i class="fas fa-sign-in-alt"></i></button>
+                <div id="google-signin-container"></div>
+                <button class="customer-support-btn" type="button" onclick="abrirWhatsAppSoporte()" aria-label="Atención al cliente" title="Habla con nosotros"><i class="fas fa-headset"></i></button>
                 <button type="button" onclick="toggleCart()" aria-label="Ver carrito"><i class="fas fa-shopping-bag"></i></button>
             </div>
         </div>
