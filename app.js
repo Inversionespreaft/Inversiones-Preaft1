@@ -26,6 +26,7 @@ const cartCount = document.getElementById('cartCount');
 const cartBody = document.getElementById('cartBody');
 const cartFooter = document.getElementById('cartFooter');
 const cartSidebar = document.getElementById('cartSidebar');
+const cartOverlay = document.getElementById('cartOverlay');
 const cartFloatIcon = document.querySelector('.cart-float-icon');
 const overlayDark = document.querySelector('.overlay-dark');
 const orderTypeModal = document.getElementById('orderTypeModal');
@@ -474,6 +475,39 @@ function abrirWhatsAppSoporte() {
   window.open(url, '_blank');
 }
 
+function requestCurrentLocation() {
+  const status = document.getElementById('deliveryAddressStatus');
+
+  if (!navigator.geolocation) {
+    const fallback = { lat: -12.0464, lon: -77.0428, display_name: 'Lima, Perú (ubicación de referencia)' };
+    setDeliveryLocation(fallback);
+    if (status) {
+      status.textContent = 'Tu navegador no comparte ubicación. Se usó Lima como referencia para continuar.';
+    }
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      const info = await nominatimReverse(lat, lon);
+      setDeliveryLocation({ lat, lon, display_name: info?.display_name || `${lat.toFixed(6)}, ${lon.toFixed(6)}` });
+      if (status) {
+        status.textContent = 'Ubicación actual lista. Puedes confirmar la dirección o ajustar la búsqueda.';
+      }
+    },
+    async () => {
+      const fallback = { lat: -12.0464, lon: -77.0428, display_name: 'Lima, Perú (ubicación de referencia)' };
+      setDeliveryLocation(fallback);
+      if (status) {
+        status.textContent = 'No fue posible obtener tu ubicación exacta. Se usó Lima como referencia y puedes escribir tu dirección si lo necesitas.';
+      }
+    },
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+  );
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   addCardAccessibility();
   initCategoryIcons();
@@ -518,17 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Share current geolocation
   const shareBtn = document.querySelector('.share-location-btn');
   if (shareBtn) {
-    shareBtn.addEventListener('click', () => {
-      if (!navigator.geolocation) return alert('Geolocalización no soportada');
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
-        const info = await nominatimReverse(lat, lon);
-        setDeliveryLocation({ lat, lon, display_name: info?.display_name || `${lat},${lon}` });
-      }, (err) => {
-        alert('No se pudo obtener la ubicación: ' + (err.message || 'Intenta nuevamente desde un lugar con mejor señal'));
-      }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
-    });
+    shareBtn.addEventListener('click', () => requestCurrentLocation());
   }
   if (!sessionStorage.getItem('preaftOrderModalSeen')) {
     setTimeout(() => openOrderModal(), 700);
@@ -767,8 +791,11 @@ function enterPrivateArea() {
   showSection('privateSection');
 }
 
-function toggleCart() {
-  cartSidebar.classList.toggle('open');
+function toggleCart(forceState) {
+  const shouldOpen = typeof forceState === 'boolean' ? forceState : !cartSidebar?.classList.contains('open');
+  cartSidebar?.classList.toggle('open', shouldOpen);
+  cartOverlay?.classList.toggle('active', shouldOpen);
+  document.body.classList.toggle('cart-open', shouldOpen);
 }
 
 function agregarAlCarrito(product) {

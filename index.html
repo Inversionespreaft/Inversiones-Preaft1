@@ -87,7 +87,7 @@
     <div class="nav-container">
         <div class="container toolbar">
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
-                <i class="fas fa-bars"></i> Categorías
+                <i class="fas fa-bars"></i> Filtrar productos
             </button>
             <div class="category-buttons">
                 <button onclick="filtrarProductos({ categoria: 0 }, this)" class="category-item active">Todas</button>
@@ -552,7 +552,7 @@
                     </div>
                                     <div class="product-card" 
                          data-id="215"
-                         data-nombre="Casco de Cerveza Backus"
+                         data-nombre="Caja de Cerveza Backus"
                          data-imagen="/uploads/1765666518_envas.png"
                          data-descripcion=""
                          data-opciones='[{&quot;label&quot;:&quot;1 Unidad&quot;,&quot;cant&quot;:1,&quot;precio_final&quot;:5,&quot;precio_normal&quot;:5,&quot;en_oferta&quot;:false}]'
@@ -3989,6 +3989,8 @@
         <i class="fas fa-shopping-cart"></i>
         <span id="cartCount" class="cart-badge">0</span>
     </div>
+
+    <div id="cartOverlay" class="cart-overlay" onclick="toggleCart(false)"></div>
     
     <div id="cartSidebar" class="cart-sidebar">
         <div class="cart-header">
