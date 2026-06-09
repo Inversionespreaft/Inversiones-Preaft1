@@ -1628,7 +1628,7 @@ body {
 }
 
 .cart-sidebar {
-  z-index: 1500;
+  z-index: 5100;
 }
 
 .cart-header,
