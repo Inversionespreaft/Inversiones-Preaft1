@@ -1045,56 +1045,75 @@ function awardPointsForPurchase(total) {
   alert(`Gracias por tu compra. Has ganado ${earned} puntos.`);
 }
 
-
-function enviarPedidoWhatsApp() {
-  if (cart.length === 0) return;
-  toggleCart(false);
-
+function buildPedidoWhatsAppText() {
   const lines = [`Hola ${nombreCatalogo}! Mi pedido:`, ''];
   let total = 0;
-  cart.forEach((item) => {
-    lines.push(`*${item.nombre}*`);
-    if (item.detalle && item.detalle !== '1 Unidad') {
-      lines.push(`  ${item.detalle}`);
-    }
-    lines.push(`  Cant: ${item.cantidad}`);
-    lines.push(`  Subtotal: S/ ${item.precioTotal.toFixed(2)}`);
-    lines.push('');
-    total += item.precioTotal;
+  const maxItemsToShow = 6;
+  const itemsToShow = cart.slice(0, maxItemsToShow);
+
+  itemsToShow.forEach((item) => {
+    const detalle = item.detalle && item.detalle !== '1 Unidad' ? ` (${String(item.detalle).slice(0, 18)})` : '';
+    lines.push(`- ${item.cantidad}x ${item.nombre}${detalle}`);
+    total += Number(item.precioTotal || 0);
   });
+
+  if (cart.length > itemsToShow.length) {
+    lines.push(`- y ${cart.length - itemsToShow.length} producto(s) más`);
+  }
 
   let totalFinal = total;
   let descuentoAplicado = 0;
   if (userLoggedIn && userDiscount > 0) {
     descuentoAplicado = total * (userDiscount / 100);
     totalFinal = total - descuentoAplicado;
-    lines.push(`*Subtotal: S/ ${total.toFixed(2)}*`);
-    lines.push(`*Descuento (${userDiscount}%): -S/ ${descuentoAplicado.toFixed(2)}*`);
   }
 
-  lines.push(`*Total a pagar: S/ ${totalFinal.toFixed(2)}*`);
+  lines.push('');
+  if (userLoggedIn && userDiscount > 0) {
+    lines.push(`Subtotal: S/ ${total.toFixed(2)}`);
+    lines.push(`Descuento (${userDiscount}%): -S/ ${descuentoAplicado.toFixed(2)}`);
+  }
+  lines.push(`Total: S/ ${totalFinal.toFixed(2)}`);
+
   if (userLoggedIn) {
-    lines.push('');
-    lines.push(`Usuario registrado: ${userEmail}`);
+    lines.push(`Usuario: ${userEmail}`);
   }
 
   if (selectedDeliveryLocation) {
     lines.push('');
-    lines.push('*Dirección de entrega:*');
-    lines.push(`${selectedDeliveryLocation.display_name}`);
-    lines.push(`Ubicación: https://www.openstreetmap.org/?mlat=${selectedDeliveryLocation.lat}&mlon=${selectedDeliveryLocation.lon}#map=18/${selectedDeliveryLocation.lat}/${selectedDeliveryLocation.lon}`);
+    lines.push(`Dirección: ${selectedDeliveryLocation.display_name}`);
   }
 
-  const base = numeroWhatsApp ? `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=` : `https://wa.me/?text=`;
-  const url = `${base}${encodeURIComponent(lines.join('\n'))}`;
-  const popup = window.open(url, '_blank', 'noopener,noreferrer');
+  return lines.join('\n');
+}
 
-  if (!popup) {
+function abrirEnlaceWhatsApp(url) {
+  try {
+    const popup = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!popup) {
+      window.location.href = url;
+      return;
+    }
+  } catch (e) {
     window.location.href = url;
   }
+}
+
+function enviarPedidoWhatsApp() {
+  if (cart.length === 0) return;
+  toggleCart(false);
+
+  const messageText = buildPedidoWhatsAppText();
+  const numero = numeroWhatsApp?.replace(/[^0-9]/g, '') || '';
+  const url = numero
+    ? `https://wa.me/${numero}?text=${encodeURIComponent(messageText)}`
+    : `https://wa.me/?text=${encodeURIComponent(messageText)}`;
+  abrirEnlaceWhatsApp(url);
 
   setTimeout(() => {
     try {
+      const total = cart.reduce((sum, item) => sum + Number(item.precioTotal || 0), 0);
+      const totalFinal = userLoggedIn && userDiscount > 0 ? total - (total * (userDiscount / 100)) : total;
       awardPointsForPurchase(totalFinal);
     } catch (e) {
       console.warn('No se pudieron asignar puntos:', e);
