@@ -606,13 +606,15 @@ button {
   position: fixed;
   inset: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 1rem;
+  padding: 0.75rem;
   overflow-y: auto;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(8, 8, 12, 0.58);
+  backdrop-filter: blur(2px);
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
   transition: opacity 0.25s ease, visibility 0.25s ease;
   z-index: 6000;
 }
@@ -620,18 +622,24 @@ button {
 .modal-overlay.visible {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 .modal-content {
+  position: relative;
+  z-index: 1;
   width: min(900px, 100%);
-  max-height: min(92vh, 920px);
+  max-height: calc(100dvh - 1.5rem);
   overflow-y: auto;
+  overflow-x: hidden;
   border-radius: 1.5rem;
   background: #fff;
   box-shadow: 0 28px 90px rgba(0, 0, 0, 0.2);
   display: grid;
   grid-template-columns: 1fr 1fr;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  pointer-events: auto;
 }
 
 .modal-close-btn {
@@ -652,6 +660,7 @@ button {
   display: flex;
   gap: 2rem;
   padding: 2.5rem;
+  overflow-x: hidden;
 }
 
 .modal-image {
@@ -1012,6 +1021,10 @@ body.cart-open {
   background: var(--color-principal);
   color: #fff;
   font-weight: 700;
+  touch-action: manipulation;
+  min-height: 48px;
+  position: relative;
+  z-index: 2;
 }
 
 .overlay-dark {
@@ -2133,8 +2146,9 @@ body {
   }
 
   .header-actions button {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
   }
 
   .nav-container {
@@ -2148,10 +2162,11 @@ body {
   .product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.75rem;
+    padding-bottom: 5rem;
   }
 
   .product-card {
-    min-height: 242px;
+    min-height: 260px;
   }
 
   .product-info {
@@ -2197,7 +2212,7 @@ body {
     left: 0;
     bottom: 0;
     width: 100%;
-    height: min(82dvh, 640px);
+    height: min(86dvh, 700px);
     border-radius: 1.2rem 1.2rem 0 0;
     transform: translateY(100%);
     transition: transform 0.35s ease;
@@ -2210,6 +2225,7 @@ body {
 
   .cart-body {
     padding: 0.9rem 1rem 1rem;
+    overscroll-behavior: contain;
   }
 
   .cart-item {
@@ -2229,6 +2245,28 @@ body {
   }
 
   .modal-content {
-    max-height: 95dvh;
+    max-height: calc(100dvh - 1rem);
+    border-radius: 1rem;
+  }
+
+  .modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .btn-action {
+    min-height: 48px;
+    padding: 0.9rem 1rem;
+    border-radius: 0.9rem;
+  }
+
+  .btn-action,
+  .modal-qty-btn,
+  .option-row,
+  .qty-btn,
+  .btn-solicitar {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 }

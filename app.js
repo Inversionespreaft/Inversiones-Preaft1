@@ -517,6 +517,13 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCartUI();
   normalizeUploadPaths();
   initDeliveryMap();
+
+  const solicitarPedidoBtn = document.getElementById('btnSolicitarPedido');
+  solicitarPedidoBtn?.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    enviarPedidoWhatsApp();
+  });
   
   // Restaurar sesión anterior si existe
   const savedUser = localStorage.getItem('preaftUser');
@@ -1041,6 +1048,8 @@ function awardPointsForPurchase(total) {
 
 function enviarPedidoWhatsApp() {
   if (cart.length === 0) return;
+  toggleCart(false);
+
   const lines = [`Hola ${nombreCatalogo}! Mi pedido:`, ''];
   let total = 0;
   cart.forEach((item) => {
@@ -1053,8 +1062,7 @@ function enviarPedidoWhatsApp() {
     lines.push('');
     total += item.precioTotal;
   });
-  
-  // Aplicar descuento si está logueado
+
   let totalFinal = total;
   let descuentoAplicado = 0;
   if (userLoggedIn && userDiscount > 0) {
@@ -1063,28 +1071,35 @@ function enviarPedidoWhatsApp() {
     lines.push(`*Subtotal: S/ ${total.toFixed(2)}*`);
     lines.push(`*Descuento (${userDiscount}%): -S/ ${descuentoAplicado.toFixed(2)}*`);
   }
-  
+
   lines.push(`*Total a pagar: S/ ${totalFinal.toFixed(2)}*`);
   if (userLoggedIn) {
     lines.push('');
     lines.push(`Usuario registrado: ${userEmail}`);
   }
-  
+
   if (selectedDeliveryLocation) {
     lines.push('');
     lines.push('*Dirección de entrega:*');
     lines.push(`${selectedDeliveryLocation.display_name}`);
     lines.push(`Ubicación: https://www.openstreetmap.org/?mlat=${selectedDeliveryLocation.lat}&mlon=${selectedDeliveryLocation.lon}#map=18/${selectedDeliveryLocation.lat}/${selectedDeliveryLocation.lon}`);
   }
-  // si `numeroWhatsApp` está definido, usa chat directo; si no, abre selector de WhatsApp con texto
-  // otorgar puntos por compra a usuario local si aplica
-  try {
-    awardPointsForPurchase(totalFinal);
-  } catch (e) {
-    console.warn('No se pudieron asignar puntos:', e);
-  }
+
   const base = numeroWhatsApp ? `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=` : `https://wa.me/?text=`;
-  window.open(`${base}${encodeURIComponent(lines.join('\n'))}`, '_blank');
+  const url = `${base}${encodeURIComponent(lines.join('\n'))}`;
+  const popup = window.open(url, '_blank', 'noopener,noreferrer');
+
+  if (!popup) {
+    window.location.href = url;
+  }
+
+  setTimeout(() => {
+    try {
+      awardPointsForPurchase(totalFinal);
+    } catch (e) {
+      console.warn('No se pudieron asignar puntos:', e);
+    }
+  }, 150);
 }
 
 function toggleMobileMenu() {
