@@ -36,14 +36,32 @@ let deliveryMap = null;
 let deliveryMarker = null;
 let selectedDeliveryLocation = null; // { lat, lon, display_name }
 
+function getSiteBasePath() {
+  if (window.location.protocol === 'file:') return '';
+  const path = window.location.pathname.replace(/\/index\.html$/i, '').replace(/\/+$/, '');
+  if (!path || path === '/') return '';
+  const parts = path.split('/').filter(Boolean);
+  return parts.length ? '/' + parts.join('/') : '';
+}
+
+function normalizeAssetUrl(value) {
+  if (!value || typeof value !== 'string') return value;
+  if (/^(https?:)?\/\//i.test(value) || value.startsWith('data:') || value.startsWith('mailto:') || value.startsWith('javascript:')) return value;
+  if (value.startsWith('/')) {
+    const basePath = getSiteBasePath();
+    return basePath ? `${basePath}${value}` : value.replace(/^\//, '');
+  }
+  return value;
+}
+
 function normalizeUploadPaths() {
-  document.querySelectorAll('[src^="/uploads/"]').forEach((el) => {
+  document.querySelectorAll('[src]').forEach((el) => {
     const v = el.getAttribute('src');
-    if (v && v.startsWith('/')) el.src = v.replace(/^\//, '');
+    if (v) el.setAttribute('src', normalizeAssetUrl(v));
   });
-  document.querySelectorAll('[data-imagen^="/uploads/"]').forEach((el) => {
+  document.querySelectorAll('[data-imagen]').forEach((el) => {
     const v = el.getAttribute('data-imagen');
-    if (v && v.startsWith('/')) el.setAttribute('data-imagen', v.replace(/^\//, ''));
+    if (v) el.setAttribute('data-imagen', normalizeAssetUrl(v));
   });
 }
 
@@ -587,7 +605,7 @@ function abrirModal(card) {
   selectedOption = null;
   modalQty = 1;
 
-  modalImg.src = currentProduct.imagen;
+  modalImg.src = normalizeAssetUrl(currentProduct.imagen);
   modalNombre.textContent = currentProduct.nombre;
   modalDescripcion.textContent = currentProduct.descripcion;
   modalQtyInput.value = modalQty;
@@ -858,7 +876,7 @@ function updateCartUI() {
     total += item.precioTotal;
     return `
       <div class="cart-item">
-        <img src="${item.imagen}" class="cart-item-img" alt="${item.nombre}">
+        <img src="${normalizeAssetUrl(item.imagen)}" class="cart-item-img" alt="${item.nombre}">
         <div class="cart-item-details">
           <strong>${item.nombre}</strong>
           <p style="font-size:0.85em;color:#777">${item.detalle}</p>
