@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Licor Tycoon</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
+
+    #game-canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* ── HUD ─────────────────────────────────────────── */
+    #hud {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      color: #fff;
+    }
+
+    /* Retícula central */
+    #crosshair {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 18px;
+      height: 18px;
+    }
+    #crosshair::before,
+    #crosshair::after {
+      content: '';
+      position: absolute;
+      background: rgba(255,255,255,0.85);
+      border-radius: 2px;
+    }
+    #crosshair::before { width: 2px; height: 100%; top: 0; left: 50%; transform: translateX(-50%); }
+    #crosshair::after  { height: 2px; width: 100%; top: 50%; left: 0; transform: translateY(-50%); }
+
+    /* Prompt de interacción */
+    #interact-prompt {
+      display: none;
+      position: absolute;
+      bottom: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.65);
+      border: 1px solid rgba(255,255,200,0.5);
+      color: #fffde7;
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-size: 15px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Indicador de sprint */
+    #sprint-indicator {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      color: #ccc;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    #sprint-indicator.active {
+      color: #ffd60a;
+      border-color: rgba(255,214,10,0.6);
+    }
+
+    /* Controles (esquina inferior izquierda) */
+    #controls-hint {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.45);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.8;
+    }
+    #controls-hint span { color: #fff; font-weight: 600; }
+
+    /* Overlay inicial (click para activar) */
+    #click-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: #fff;
+      cursor: pointer;
+      z-index: 100;
+    }
+    #click-overlay h1 { font-size: 2.8rem; letter-spacing: 2px; color: #ffd60a; }
+    #click-overlay p  { font-size: 1rem; color: rgba(255,255,255,0.7); }
+  </style>
+</head>
+<body>
+  <!-- Overlay inicial -->
+  <div id="click-overlay">
+    <h1>🥃 LICOR TYCOON</h1>
+    <p>Haz clic para comenzar</p>
+  </div>
+
+  <!-- Canvas principal -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div id="crosshair"></div>
+    <div id="interact-prompt">[E] Interactuar</div>
+    <div id="sprint-indicator">⚡ Sprint</div>
+    <div id="controls-hint">
+      <span>WASD</span> Mover &nbsp;|&nbsp;
+      <span>Shift</span> Sprint &nbsp;|&nbsp;
+      <span>E</span> Interactuar &nbsp;|&nbsp;
+      <span>V</span> Cámara &nbsp;|&nbsp;
+      <span>Esc</span> Salir
+    </div>
+  </div>
+
+  <script type="module" src="./src/systems/main.js"></script>
+
+  <script>
+    // Ocultar overlay al hacer clic (activa pointer lock desde main.js)
+    document.getElementById('click-overlay').addEventListener('click', function() {
+      this.style.display = 'none';
+      document.getElementById('game-canvas').click();
+    });
+
+    // Sprint indicator
+    // El PlayerController actualiza esto vía onSprint callback
+    // (Conectado desde main.js en fases posteriores si se desea)
+  </script>
+</body>
+</html>
